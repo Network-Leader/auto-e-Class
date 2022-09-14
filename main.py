@@ -89,7 +89,7 @@ class AutomaticAttendance:
                     # 재생 버튼 클릭
                     self.driver.find_element(By.CLASS_NAME, "vc-front-screen-play-btn").click()
                     # 출석 시간 + 10초 만큼 잠들기
-                    sleep(cur.inner_lectures[cur.inner_idx] + 10)
+                    sleep(cur.inner_lectures[cur.inner_idx] + 200)
 
                 # 강의 idx++
                 cur.inner_idx += 1

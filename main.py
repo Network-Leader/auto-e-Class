@@ -41,8 +41,8 @@ class AutomaticAttendance:
         self.driver.close()
 
     def Login(self):
-        self.id = "22101200"  # input("ID를 입력하세요: ")
-        self.pw = "Qwerasdf1234!"  # input("비밀번호를 입력하세요: ")
+        self.id = input("ID를 입력하세요: ")
+        self.pw = input("비밀번호를 입력하세요: ")
 
         # login
         self.driver.find_element(By.CLASS_NAME, "header_login.login-btn-color").click()
@@ -79,7 +79,7 @@ class AutomaticAttendance:
             print(cur)
             # 학습 하기 버튼 클릭
             self.driver.find_elements(By.CLASS_NAME, "view")[idx].click()
-
+            sleep(3)
             inner_count = len(cur.inner_lectures)
             while True:
                 # 남은 시간이 0보다 클 때만 수강

@@ -98,6 +98,7 @@ class AutomaticAttendance:
         for idx, cur in enumerate(lectures):
             print(cur)
             # 학습 하기 버튼 클릭
+            sleep(1)
             self.driver.find_elements(By.CLASS_NAME, "view")[idx].click()
             sleep(3)
             inner_count = len(cur.inner_lectures)
@@ -111,9 +112,7 @@ class AutomaticAttendance:
                     # 재생 버튼 클릭
                     self.driver.find_element(By.CLASS_NAME, "vc-front-screen-play-btn").click()
                     # 출석 시간 + 10초 만큼 잠들기
-                    start = time()
-                    while time() <= start + cur.inner_lectures[cur.inner_idx] + 100:
-                        pass
+                    sleep(cur.inner_lectures[cur.inner_idx] + 10)
 
                 # 강의 idx++
                 cur.inner_idx += 1

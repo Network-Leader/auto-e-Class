@@ -1,3 +1,5 @@
+from getpass import getpass
+
 from selenium.webdriver.common.by import By
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -27,8 +29,10 @@ class Lecture:
         self.inner_idx = 0
 
     def __repr__(self):
-        return str(self.inner_lectures)
-
+        ret = ""
+        for i in self.inner_lectures:
+            ret += f"내부 강의 잔여 시간(초): {i}\n"
+        return ret
 
 class AutomaticAttendance:
     def __init__(self):
@@ -46,7 +50,7 @@ class AutomaticAttendance:
 
     def Login(self):
         self.id = input("ID를 입력하세요: ")
-        self.pw = input("비밀번호를 입력하세요: ")
+        self.pw = getpass()
         print('\n'*200)
 
         # login
@@ -89,7 +93,7 @@ class AutomaticAttendance:
                     lis_time, play_time = lec.find_element(By.XPATH,
                                                            f"div/ul/li[1]/ol/li[5]/div/div[{i}]/div[2]/div[3]").text.split(
                         '/')
-                    print(lis_time, play_time)
+                    print(f"들은 시간: {lis_time}, 남은 시간: {play_time}")
                     inner_lectures.append(time_converter(play_time) - time_converter(lis_time))
             finally:
                 lectures.append(Lecture(inner_lectures))
@@ -117,6 +121,7 @@ class AutomaticAttendance:
                 # 강의 idx++
                 cur.inner_idx += 1
                 if cur.inner_idx == inner_count:  # 내부 강의를 다 들으면 종료
+                    sleep(1)
                     break
                 # iframe 빠져 나오기
                 self.driver.switch_to.default_content()
@@ -124,9 +129,9 @@ class AutomaticAttendance:
                 self.driver.find_element(By.ID, "next_").click()
                 sleep(1)
 
-            # 내부 강의 개수 만큼 뒤로 가기
-            for i in range(inner_count):
-                self.driver.back()
+            # 출석(종료) 버튼 누르기
+            self.driver.switch_to.default_content()
+            self.driver.find_element(By.ID, "close_").click()
 
 
 if __name__ == "__main__":

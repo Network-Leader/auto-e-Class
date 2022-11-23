@@ -3,6 +3,7 @@ from getpass import getpass
 from selenium.webdriver.common.by import By
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
+from selenium.common.exceptions import NoAlertPresentException
 from webdriver_manager.chrome import ChromeDriverManager
 from time import sleep,time
 import os
@@ -49,28 +50,30 @@ class AutomaticAttendance:
         self.driver.close()
 
     def Login(self):
-        self.id = input("ID를 입력하세요: ")
-        self.pw = getpass()
-        print('\n'*200)
+        while True:
+            self.id = input("ID를 입력하세요: ")
+            self.pw = getpass()
 
-        # login
-        self.driver.find_element(By.CLASS_NAME, "header_login.login-btn-color").click()
-        sleep(0.3)
-        self.driver.find_element(By.ID, "usr_id").send_keys(self.id)
-        sleep(0.3)
-        self.driver.find_element(By.ID, "usr_pwd").send_keys(self.pw)
-        sleep(0.3)
+            # login
+            self.driver.find_element(By.CLASS_NAME, "header_login.login-btn-color").click()
+            sleep(0.3)
+            self.driver.find_element(By.ID, "usr_id").send_keys(self.id)
+            sleep(0.3)
+            self.driver.find_element(By.ID, "usr_pwd").send_keys(self.pw)
+            sleep(0.3)
 
-        self.driver.find_element(By.CLASS_NAME, "btntype").click()
+            self.driver.find_element(By.CLASS_NAME, "btntype").click()
+            sleep(1)
 
-        os.system('cls' if os.name in ('nt', 'dos') else 'clear')
+            try:
+                self.driver.switch_to.alert.accept()
+            except NoAlertPresentException:
+                print("로그인 성공!!!")
+                break
 
-        try:
-            popup = self.driver.find_elements(By.NAME, "doneclose")  # 팝업창 다시 보지 않기 버튼 찾기
-            for x in popup:
-                x.click()  # 전부 누르기
-        except:
-            pass
+        popup = self.driver.find_elements(By.NAME, "doneclose")  # 팝업창 다시 보지 않기 버튼 찾기
+        for x in popup:
+            x.click()  # 전부 누르기
 
     def Attendance(self):
         # to do list로 들어가기
@@ -137,10 +140,8 @@ class AutomaticAttendance:
 if __name__ == "__main__":
     a = AutomaticAttendance()
     a.Login()
-    while True:
-        a.Attendance()
-        try:
-            while True:
-                a.Attendance()
-        finally:
-            a.EndProcess()
+    try:
+        while True:
+            a.Attendance()
+    finally:
+        a.EndProcess()

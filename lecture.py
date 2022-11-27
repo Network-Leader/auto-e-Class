@@ -21,32 +21,41 @@ class Lecture:
     def __init__(self, class_id: str, lecture_id: str, login: LoginSession):
         self.class_id = class_id
         self.lecture_id = lecture_id
-        self.times = []
-
+        self.week_no = self.__get_weekno(login)
+        self.class_name = self.__get_classname(login)
+        self.times = self.__get_timestamps(login, class_id, self.week_no)
+            
+    def __get_weekno(self, login) -> int:
         res = login.session.get(self.get_baseurl())
         href = res.text.split('"')[1]
         queries = href.split("?")[1]
         query = dict(q.split("=") for q in queries.split("&"))
-        self.week_no = int(query["WEEK_NO"])
-
+        return int(query["WEEK_NO"])
+        
+    def __get_classname(self, login) -> str:
+        res = login.session.get(self.get_baseurl())
+        href = res.text.split('"')[1]
         res = login.session.get(f"https://{self.HOST}{href}")
         soup = BeautifulSoup(res.text, "html.parser")
-        self.class_name = soup.select("#subject-span")[0].text.strip()
+        return soup.select("#subject-span")[0].text.strip()
 
+    def __get_timestamps(self, login, class_id, week_no):
         body = {
             "ud": login.studentid,
             "ky": class_id,
-            "WEEK_NO": self.week_no,
+            "WEEK_NO": week_no,
             "encoding": "utf-8",
         }
         res = login.session.post(
             f"https://{self.HOST}{self.PATH_ONLINE_LIST}", data=body
         )
         soup = BeautifulSoup(res.text, "html.parser")
+        times = []
         timestamps = soup.select(f"div[id^=progressbar_{lecture_id}] + #per_text + div")
         for timestamp in timestamps:
             cur, tot = map(convert_time, timestamp.text.split("/"))
-            self.times.append((cur, tot))
+            times.append((cur, tot))
+        return times
 
     def get_baseurl(self):
         params = {

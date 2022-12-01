@@ -51,7 +51,7 @@ class Lecture:
         )
         soup = BeautifulSoup(res.text, "html.parser")
         times = []
-        timestamps = soup.select(f"div[id^=progressbar_{lecture_id}] + #per_text + div")
+        timestamps = soup.select(f"div[id^=progressbar_{self.lecture_id}] + #per_text + div")
         for timestamp in timestamps:
             cur, tot = map(convert_time, timestamp.text.split("/"))
             times.append((cur, tot))

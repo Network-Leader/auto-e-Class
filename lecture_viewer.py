@@ -46,7 +46,7 @@ class LectureViewer:
     def __exit__(self, exc_type, exc_value, traceback):
         self.driver.quit()
 
-    def __mute(self):
+    def __mute(self) -> bool:
         try:
             volume_button = self.driver.find_element(
                 By.CLASS_NAME, "vc-pctrl-volume-btn"
@@ -62,6 +62,7 @@ class LectureViewer:
             iframe = self.driver.find_element(By.TAG_NAME, "iframe")
             self.driver.switch_to.frame(iframe)
             self.driver.find_element(By.CLASS_NAME, "vc-front-screen-play-btn").click()
+            self.__mute()
             self.driver.switch_to.default_content()
             return True
         except NoSuchElementException:
@@ -100,8 +101,7 @@ class LectureViewer:
             titles.append(e.text)
         self.__report_lecture(lecture.class_name, lecture.week_no)
         for idx, (cur, tot) in enumerate(lecture.times):
-            self.__mute()
-            self.__play
+            self.__play()
             while cur <= tot:
                 self.__report_progress(titles[idx], cur / tot)
                 cur += 0.1

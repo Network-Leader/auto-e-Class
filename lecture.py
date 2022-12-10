@@ -24,14 +24,14 @@ class Lecture:
         self.week_no = self.__get_weekno(login)
         self.class_name = self.__get_classname(login)
         self.times = self.__get_timestamps(login, class_id, self.week_no)
-            
+
     def __get_weekno(self, login) -> int:
         res = login.session.get(self.get_baseurl())
         href = res.text.split('"')[1]
         queries = href.split("?")[1]
         query = dict(q.split("=") for q in queries.split("&"))
         return int(query["WEEK_NO"])
-        
+
     def __get_classname(self, login) -> str:
         res = login.session.get(self.get_baseurl())
         href = res.text.split('"')[1]
@@ -39,7 +39,7 @@ class Lecture:
         soup = BeautifulSoup(res.text, "html.parser")
         return soup.select("#subject-span")[0].text.strip()
 
-    def __get_timestamps(self, login, class_id, week_no):
+    def __get_timestamps(self, login, class_id, week_no) -> list[tuple[int, int]]:
         body = {
             "ud": login.studentid,
             "ky": class_id,
@@ -51,7 +51,9 @@ class Lecture:
         )
         soup = BeautifulSoup(res.text, "html.parser")
         times = []
-        timestamps = soup.select(f"div[id^=progressbar_{self.lecture_id}] + #per_text + div")
+        timestamps = soup.select(
+            f"div[id^=progressbar_{self.lecture_id}] + #per_text + div"
+        )
         for timestamp in timestamps:
             cur, tot = map(convert_time, timestamp.text.split("/"))
             times.append((cur, tot))

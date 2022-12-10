@@ -77,12 +77,11 @@ class LectureViewer:
         lecture_name_count = len(lecture_name) + sum(
             1 for c in lecture_name if unicodedata.east_asian_width(c) in "WF"
         )
+        width_progressbar = width - lecture_name_count - 2 - 9  # 2: ": ", 9: " 100.00%"
         square = "\u2588"
-        square_count = int(progress * width)
+        square_count = int(width_progressbar * progress)
         blank = "\u2591"
-        blank_count = (
-            width - lecture_name_count - 2 - square_count - 8
-        )  # 2 for ': ', 8 for ' 100.00% '
+        blank_count = width_progressbar - square_count
         print(
             f"\r{lecture_name}: {square * square_count}{blank * blank_count} {progress * 100: 3.2f}%",
             end="",

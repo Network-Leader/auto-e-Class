@@ -7,9 +7,8 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from webdriver_manager.chrome import ChromeDriverManager
 
+from tqdm import trange
 import time
-import os
-import unicodedata
 
 
 class LectureViewer:
@@ -68,24 +67,21 @@ class LectureViewer:
         except NoSuchElementException:
             return False
 
+    def __wait(self, title, cur, tot) -> bool:
+        for _ in trange(
+            cur * 10,
+            tot * 10,
+            initial=cur * 10,
+            total=tot * 10,
+            desc=title,
+            dynamic_ncols=True,
+            bar_format="{desc}: {percentage:3.0f}%|{bar}| [{elapsed}/{remaining}]",
+        ):
+            time.sleep(0.1)
+
     def __report_lecture(self, class_name: str, week_no: int):
         print()
         print(f"[{class_name}] {week_no}주차 강의")
-
-    def __report_progress(self, lecture_name: str, progress: float):
-        width, _ = os.get_terminal_size()
-        lecture_name_count = len(lecture_name) + sum(
-            1 for c in lecture_name if unicodedata.east_asian_width(c) in "WF"
-        )
-        width_progressbar = width - lecture_name_count - 2 - 9  # 2: ": ", 9: " 100.00%"
-        square = "\u2588"
-        square_count = int(width_progressbar * progress)
-        blank = "\u2591"
-        blank_count = width_progressbar - square_count
-        print(
-            f"\r{lecture_name}: {square * square_count}{blank * blank_count} {progress * 100: 3.2f}%",
-            end="",
-        )
 
     def view(self, lecture: Lecture):
         self.driver.get(lecture.get_baseurl())
@@ -101,10 +97,7 @@ class LectureViewer:
         self.__report_lecture(lecture.class_name, lecture.week_no)
         for idx, (cur, tot) in enumerate(lecture.times):
             self.__play()
-            while cur <= tot:
-                self.__report_progress(titles[idx], cur / tot)
-                cur += 0.1
-                time.sleep(0.1)
+            self.__wait(titles[idx], cur, tot)
             print()
             if idx < len(lecture.times) - 1:
                 self.driver.find_element(By.ID, "next_").click()

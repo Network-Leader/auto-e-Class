@@ -57,15 +57,17 @@ class LectureViewer:
             return False
 
     def __play(self) -> bool:
+        success = True
         try:
             iframe = self.driver.find_element(By.TAG_NAME, "iframe")
             self.driver.switch_to.frame(iframe)
             self.driver.find_element(By.CLASS_NAME, "vc-front-screen-play-btn").click()
             self.__mute()
-            self.driver.switch_to.default_content()
-            return True
         except NoSuchElementException:
-            return False
+            success = False
+        finally:
+            self.driver.switch_to.default_content()
+            return success
 
     def __wait(self, title, cur, tot) -> bool:
         for _ in trange(
